@@ -15,7 +15,7 @@ if (process.argv.length < 4 ) {
 }
 var user = process.argv[2];
 var password = process.argv[3];
-var postdata = query.stringify({'track': 'test'});
+var postdata = query.stringify({'track': 'jquery,html5,symfony2'});
 
 headers["Authorization"] = "Basic " + new Buffer(user + ":" + password).toString('base64');
 headers['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -35,7 +35,18 @@ var requestOptions = {
 
 request = https.request(requestOptions, function(response) {
   response.on('data', function(chunk){
-    console.log("DATA: %s",chunk.toString('utf8'));
+    //console.log("DATA: %s",chunk.toString('utf8'));
+    var json = chunk.toString('utf8');
+    if(json.length > 0) {
+        try {
+          var j = JSON.parse(json);
+          console.log(j.text);
+            //self.emit('tweet', JSON.parse(json));
+        } catch(e) {
+          console.log("ERRORE:"+e);
+            //self.emit('error', e);
+        }
+    }
   });
 
   response.on('end', function() {
