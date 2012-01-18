@@ -1,5 +1,59 @@
-var util = require('util');
-var spawn = require('child_process').spawn;
+var util   = require('util');
+var https  = require('https');
+var query        = require('querystring');
+var Buffer       = require('buffer').Buffer;
+//var spawn  = require('child_process').spawn;
+
+
+var headers = {
+  "User-Agent": 'rb_agent'
+};
+
+if (process.argv.length < 4 ) {
+  console.log("Esegui il programma come: %s %s <username> <password>", process.argv[0], process.argv[1]);
+  process.exit(1);
+}
+var user = process.argv[2];
+var password = process.argv[3];
+var postdata = query.stringify({'track': 'test'});
+
+headers["Authorization"] = "Basic " + new Buffer(user + ":" + password).toString('base64');
+headers['Content-Type'] = 'application/x-www-form-urlencoded';
+headers['Content-Length'] = postdata.length;
+
+var requestOptions = {
+  host:    "stream.twitter.com",
+  port:    443,
+  path:    "/1/statuses/filter.json",
+  method:  'POST',
+  headers: headers
+};
+
+
+
+
+
+request = https.request(requestOptions, function(response) {
+  response.on('data', function(chunk){
+    console.log("DATA: %s",chunk.toString('utf8'));
+  });
+
+  response.on('end', function() {
+    console.log("END");
+  });
+});
+
+request.write(postdata);
+request.end();
+
+request.on('error', function(e) {
+  console.error(e);
+});
+
+
+
+
+/*
 console.log("aa");
 var tail_child = spawn('sh', ['stream.sh'], {'cwd':'/Users/rbutti/scripts/twitter_streaming'});
 var response = "";
@@ -37,3 +91,4 @@ tail_child.on('exit', function (code) {
   }
 });
 console.log('Spawned child pid: ' + tail_child.pid);
+*/
